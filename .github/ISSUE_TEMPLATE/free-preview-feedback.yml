@@ -1,0 +1,42 @@
+name: Free preview feedback
+description: Share installation and repeat-use feedback using fake examples only.
+title: "[Preview feedback]: "
+body:
+  - type: markdown
+    attributes:
+      value: "This issue is public. Do not include real secrets, private prompts or code, company identity, customer data, or personal information. No payment is requested."
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Did installation work?
+      options:
+        - "Yes"
+        - "No"
+        - "Not tried yet"
+    validations:
+      required: true
+  - type: dropdown
+    id: repeat_use
+    attributes:
+      label: Have you used it again since the first test?
+      options:
+        - "Yes, this week"
+        - "Yes, but not this week"
+        - "No"
+    validations:
+      required: true
+  - type: dropdown
+    id: editor
+    attributes:
+      label: Which supported site did you test?
+      options:
+        - "ChatGPT"
+        - "Claude"
+        - "Gemini"
+        - "Local checker only"
+  - type: textarea
+    id: problem
+    attributes:
+      label: What worked or failed?
+      description: Describe ON/OFF behavior, editor failures, or false alarms using fabricated examples only.
+
