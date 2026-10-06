@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "PasteGuard — Local Paste Check",
+  "version": "0.2.1",
+  "description": "Switch local pattern redaction on or off for supported text inputs on ChatGPT, Claude, and Gemini. Test version.",
+  "permissions": ["storage"],
+  "action": { "default_popup": "popup.html", "default_title": "PasteGuard local checker" },
+  "content_scripts": [{
+    "matches": ["https://chatgpt.com/*", "https://claude.ai/*", "https://gemini.google.com/*"],
+    "js": ["detector.js", "protection.js", "guard.js"],
+    "run_at": "document_start",
+    "all_frames": false
+  }],
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'none'" }
+}
+
