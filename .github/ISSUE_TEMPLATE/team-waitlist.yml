@@ -1,0 +1,71 @@
+name: Team plan waitlist
+description: Register interest in a proposed $500/month team plan. No payment or commitment.
+title: "[Team waitlist]: interest"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a PUBLIC interest list using your GitHub username. Do not include work email, employer identity, private code, credentials, customer data, or confidential details. GitHub sign-in is required to submit. You can edit or close your request later; closing does not erase public history.
+
+        The extension preview is free. A $500/month team plan is proposed, not available. Shared rules, team accounts, and a dashboard are planned, not implemented. No charge, contract, reservation, launch date, or guarantee. Your answers measure interest, not a purchase. Check this repository for updates; no email marketing list is created.
+  - type: dropdown
+    id: role
+    attributes:
+      label: Your role in a potential purchase
+      options:
+        - Developer or individual tester
+        - Team lead evaluating tools
+        - Authorized buyer evaluating tools
+        - Other or prefer not to say
+    validations:
+      required: true
+  - type: dropdown
+    id: price_interest
+    attributes:
+      label: Would you consider a $500/month team plan if it met your requirements?
+      options:
+        - Interested in evaluating at this price
+        - Only interested at a lower price
+        - Free preview only
+        - Unsure
+    validations:
+      required: true
+  - type: dropdown
+    id: team_size
+    attributes:
+      label: Approximate interested team size
+      options:
+        - 1 person
+        - 2 to 10 people
+        - 11 to 25 people
+        - 26 or more people
+        - Prefer not to say
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Most important improvement
+      options:
+        - Reliable editor compatibility
+        - Shared custom redaction rules
+        - Team deployment and settings
+        - Better detection accuracy
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: needs
+    attributes:
+      label: Optional requirements
+      description: Describe general needs only. No private business details or personal information.
+  - type: checkboxes
+    id: acknowledge
+    attributes:
+      label: Confirm before submitting
+      options:
+        - label: I understand this request is public and contains no confidential or personal information beyond my public GitHub identity.
+          required: true
+        - label: I understand this is interest in a planned product, not a purchase or proof that my company will pay.
+          required: true
+
