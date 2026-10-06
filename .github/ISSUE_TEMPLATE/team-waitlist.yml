@@ -24,10 +24,10 @@ body:
     attributes:
       label: Would you consider a $500/month team plan if it met your requirements?
       options:
+        - Unsure
         - Interested in evaluating at this price
         - Only interested at a lower price
         - Free preview only
-        - Unsure
     validations:
       required: true
   - type: dropdown
