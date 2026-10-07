@@ -1,12 +1,10 @@
-# PasteGuard 0.2.1 preview privacy
+# Privacy � experimental v0.3.0
 
-Scanning happens locally in supported input fields on the three sites named in the manifest. The supplied extension has no outbound scanning requests, AI API, analytics, or saved snippets. Only the ON/OFF preference is stored in Chrome extension storage.
+Rules run locally in Chrome. Optional local AI sends text from supported editable fields through the extension worker only to http://127.0.0.1:4322/scan on the same computer. Both protection and AI switches must be ON. Text is processed in memory and no snippets, analytics, or request logs are saved. ON/OFF, AI preference and guessing preference are saved in Chrome extension local storage.
 
-It does not control destination websites, other extensions, browser or clipboard history, or operating-system behavior. A destination can read text before a pattern is recognized.
+The optional server binds only to loopback; it has no cloud inference calls. Setup obtains Python packages from PyPI and model files from Hugging Face, disclosing ordinary download metadata to those services. It does not send user snippets during setup.
 
-Redaction changes editor text and does not restore removed text. Uninstalling removes the extension-local preference.
+The localhost host permission is new. The background worker restricts requests to one fixed endpoint and supported sender origins. The model is a token classifier, not a guarantee of confidentiality. A destination may observe text before it is detected. Files, images, rich editors, unsupported sites, password fields and desktop apps are not covered. No company billing, account system or payment provider exists.
 
-GitHub issues are public and subject to GitHub policies. Post fabricated examples only, never credentials, private prompts, code, customer data, or personal information.
-
-This describes the free preview. No paid service is available. Any later service or additional collection needs updated privacy information.
+Public GitHub feedback and interest forms are visible to others; use fake data only.
 
