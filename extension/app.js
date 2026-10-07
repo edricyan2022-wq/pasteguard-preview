@@ -6,10 +6,13 @@ const area=document.getElementById('output-area');
 const copyStatus=document.getElementById('copy-status');
 const sample='These values are FAKE test data:\n\nAWS_ACCESS_KEY_ID=AKIA0000000000000000\npassword="DemoPassword_4829"\nAuthorization: Bearer FAKE_TOKEN_1234567890123456\nEmail: demo@example.com\nPhone: (312) 555-0123\nCard: 4242 4242 4242 4242';
 const demoToggle=document.getElementById('demo-toggle'),liveStatus=document.getElementById('live-status');
+const likelyToggle=document.getElementById('likely-toggle');
+function scanOptions(){return {detectLikelySecrets:likelyToggle?.checked===true};}
 function liveNotice(findings){if(liveStatus)liveStatus.textContent='ON — redacted '+findings.length+' detected match'+(findings.length===1?'':'es')+'. Review before sharing.';}
-function applyLive(){if(!demoToggle?.checked)return;try{const s=PasteGuard.scan(input.value);if(s.findings.length){input.value=s.redacted;reset();liveNotice(s.findings);}}catch(error){liveStatus.textContent=error.message;}}
+function applyLive(){if(!demoToggle?.checked)return;try{const s=PasteGuard.scan(input.value,scanOptions());if(s.findings.length){input.value=s.redacted;reset();liveNotice(s.findings);}}catch(error){liveStatus.textContent=error.message;}}
+likelyToggle?.addEventListener('change',()=>{if(demoToggle)applyLive();});
 if(demoToggle){
-  const liveProtection=PasteGuardProtection.attach({window,document,isEnabled:()=>demoToggle.checked,onRedact:liveNotice,onError:message=>{liveStatus.textContent=message;}});
+  const liveProtection=PasteGuardProtection.attach({window,document,isEnabled:()=>demoToggle.checked,getScanOptions:scanOptions,onRedact:liveNotice,onError:message=>{liveStatus.textContent=message;}});
   demoToggle.addEventListener('change',()=>{liveProtection.resetContinuation();liveStatus.textContent=demoToggle.checked?'ON — recognized patterns are redacted as you type.':'OFF — new text stays unchanged. Previously redacted text stays redacted.';applyLive();});
 }
 function reset(){area.hidden=true;output.value='';copyStatus.textContent='';result.replaceChildren();const h=document.createElement('h2');h.textContent='Ready when you are.';const p=document.createElement('p');p.textContent='Check your current text to review possible secrets.';result.append(h,p);document.getElementById('chars').textContent=input.value.length.toLocaleString()+' characters';}
@@ -21,7 +24,7 @@ function check(){
   const h=document.createElement('h2'),p=document.createElement('p');
   if(!input.value.trim()){h.textContent='Add some text first.';p.textContent='Use the fake example to try a scan.';result.append(h,p);return {findings:[]};}
   let scanned;
-  try{scanned=PasteGuard.scan(input.value);}catch(error){h.textContent='Could not check this text.';p.textContent=error.message;result.append(h,p);return {error:error.message};}
+  try{scanned=PasteGuard.scan(input.value,scanOptions());}catch(error){h.textContent='Could not check this text.';p.textContent=error.message;result.append(h,p);return {error:error.message};}
   const findings=scanned.findings;
   h.textContent=findings.length ? findings.length+' possible secret'+(findings.length===1?'':'s')+' found.' : 'No selected patterns found.';
   h.className=findings.length?'warning-title':'';
