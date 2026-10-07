@@ -1,0 +1,174 @@
+{
+  "model": "onnx-community/bert-small-pii-detection-ONNX",
+  "revision": "6cb4e77c2b2c7f81e731b88cffa9b7a6fc675a4c",
+  "scope": "Raw AI only; fake-data sample, not accuracy estimate. Rules separately cover API keys and labeled passwords.",
+  "cases": [
+    {
+      "case": "person_location",
+      "fake_input": "My name is Olivia Bennett and I live in Austin.",
+      "expected_items": [
+        "Olivia Bennett",
+        "Austin"
+      ],
+      "full_items_caught": 2,
+      "redacted": "My name is [REDACTED] and I live in [REDACTED].",
+      "findings": [
+        {
+          "start": 11,
+          "end": 25,
+          "type": "PERSON",
+          "score": 0.9965171813964844
+        },
+        {
+          "start": 40,
+          "end": 46,
+          "type": "LOCATION",
+          "score": 0.9701159596443176
+        }
+      ],
+      "milliseconds": 2.56
+    },
+    {
+      "case": "simple_password",
+      "fake_input": "My password is sunshine.",
+      "expected_items": [
+        "sunshine"
+      ],
+      "full_items_caught": 1,
+      "redacted": "My password is [REDACTED].",
+      "findings": [
+        {
+          "start": 15,
+          "end": 23,
+          "type": "PERSON",
+          "score": 0.7898368835449219
+        }
+      ],
+      "milliseconds": 0.89
+    },
+    {
+      "case": "mixed_password",
+      "fake_input": "My password is DemoPass12!.",
+      "expected_items": [
+        "DemoPass12!"
+      ],
+      "full_items_caught": 0,
+      "redacted": "My password is DemoPass12!.",
+      "findings": [],
+      "milliseconds": 0.82
+    },
+    {
+      "case": "unlabeled_password",
+      "fake_input": "DemoPass12!",
+      "expected_items": [
+        "DemoPass12!"
+      ],
+      "full_items_caught": 0,
+      "redacted": "DemoPass12!",
+      "findings": [],
+      "milliseconds": 0.61
+    },
+    {
+      "case": "email",
+      "fake_input": "Contact me at demo@example.com.",
+      "expected_items": [
+        "demo@example.com"
+      ],
+      "full_items_caught": 1,
+      "redacted": "Contact me at [REDACTED].",
+      "findings": [
+        {
+          "start": 14,
+          "end": 30,
+          "type": "EMAIL_ADDRESS",
+          "score": 0.9017147421836853
+        }
+      ],
+      "milliseconds": 0.83
+    },
+    {
+      "case": "phone",
+      "fake_input": "Call me at (312) 555-0123.",
+      "expected_items": [
+        "(312) 555-0123"
+      ],
+      "full_items_caught": 0,
+      "redacted": "Call me at (312) 555-0123.",
+      "findings": [],
+      "milliseconds": 0.86
+    },
+    {
+      "case": "address",
+      "fake_input": "I live at 123 Maple Street in Boston.",
+      "expected_items": [
+        "123 Maple Street",
+        "Boston"
+      ],
+      "full_items_caught": 2,
+      "redacted": "I live at [REDACTED] in [REDACTED].",
+      "findings": [
+        {
+          "start": 10,
+          "end": 26,
+          "type": "LOCATION",
+          "score": 0.9495211243629456
+        },
+        {
+          "start": 30,
+          "end": 36,
+          "type": "LOCATION",
+          "score": 0.84256911277771
+        }
+      ],
+      "milliseconds": 0.72
+    },
+    {
+      "case": "api_key",
+      "fake_input": "sk-proj-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected_items": [
+        "sk-proj-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      ],
+      "full_items_caught": 0,
+      "redacted": "sk-proj-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "findings": [],
+      "milliseconds": 1.31
+    },
+    {
+      "case": "ordinary",
+      "fake_input": "Please help me improve this code and write a clear explanation.",
+      "expected_items": [],
+      "full_items_caught": 0,
+      "redacted": "Please help me improve this code and write a clear explanation.",
+      "findings": [],
+      "milliseconds": 0.96
+    },
+    {
+      "case": "emoji_name",
+      "fake_input": "\ud83d\ude42 My name is Olivia Bennett.",
+      "expected_items": [
+        "Olivia Bennett"
+      ],
+      "full_items_caught": 1,
+      "redacted": "\ud83d\ude42 My name is [REDACTED].",
+      "findings": [
+        {
+          "start": 14,
+          "end": 28,
+          "type": "PERSON",
+          "score": 0.9959691762924194
+        }
+      ],
+      "milliseconds": 0.75
+    }
+  ],
+  "checks": {
+    "oversize_rejected": true,
+    "utf16_offsets_correct": true,
+    "ordinary_text_unchanged": true
+  },
+  "warm_compute_ms": {
+    "median": 0.83,
+    "max": 1.34,
+    "min": 0.79
+  }
+}
