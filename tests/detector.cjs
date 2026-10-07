@@ -14,6 +14,7 @@ test('provider patterns',()=>{for(const text of ['ghp_'+'A'.repeat(36),'github_p
 test('oversize fails explicitly',()=>assert.throws(()=>scan('a'.repeat(250001)),/too large/));
 test('repeated calls are deterministic',()=>{assert.equal(scan('password=DemoPassword_4829').findings.length,1);assert.equal(scan('password=DemoPassword_4829').findings.length,1);});
 test('many findings with correct redaction',()=>{const s=scan('password=FAKE_SECRET_123\n'.repeat(9000));assert.equal(s.findings.length,9000);assert.equal(s.findings[8999].line,9000);assert(!s.redacted.includes('FAKE_SECRET'));});
+
 test('email redaction',()=>assert.equal(scan('Email: demo@example.com').redacted,'Email: [REDACTED]'));
 test('US phone redaction',()=>assert.equal(scan('(312) 555-0123').redacted,'[REDACTED]'));
 test('SSN-like redaction',()=>assert.equal(scan('123-45-6789').redacted,'[REDACTED]'));
@@ -28,6 +29,14 @@ test('long dotted non-email is unchanged',()=>{const text='a.'.repeat(125000);as
 test('long dotted string with invalid email domain is unchanged',()=>{const text='a.'.repeat(120000)+'@localhost';assert.equal(scan(text).redacted,text);});
 test('dotted email, punctuation and multiple addresses',()=>assert.equal(scan('first.last+tag@example.com, second@example.org!').redacted,'[REDACTED], [REDACTED]!'));
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'extension/manifest.json'),'utf8'));
+test('password in ordinary sentence',()=>assert.equal(scan('My password is DemoPassword_4829 please hide it').redacted,'My password is [REDACTED] please hide it'));
+test('API key in ordinary sentence',()=>assert.equal(scan('The API key is FAKE_TOKEN_1234567890').redacted,'The API key is [REDACTED]'));
+test('unlabeled guessing is opt-in',()=>assert.equal(scan('DemoPass12!').findings.length,0));
+test('mixed unlabeled password in sentence',()=>assert.equal(scan('Use DemoPass12! here',{detectLikelySecrets:true}).redacted,'Use [REDACTED] here'));
+test('long mixed token without provider prefix',()=>assert.equal(scan('aB3dE6gH9jK2mN5pQ8sT1vW4yZ7',{detectLikelySecrets:true}).redacted,'[REDACTED]'));
+test('guessing keeps normal prose and placeholders',()=>{const text='Please fix our documentation. YOUR_API_KEY [REDACTED] changeme';assert.equal(scan(text,{detectLikelySecrets:true}).redacted,text);});
+test('guessing is idempotent',()=>{const first=scan('DemoPass12! sk-proj-'+ 'A'.repeat(30),{detectLikelySecrets:true});assert.equal(scan(first.redacted,{detectLikelySecrets:true}).redacted,first.redacted);});
 test('limited hosts and storage permission',()=>{assert.equal(manifest.content_scripts[0].matches.length,3);assert.equal(manifest.permissions.join(','),'storage');});
 process.stdout.write(passed+' detector/package checks passed.\n');
+
 
