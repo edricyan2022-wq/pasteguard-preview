@@ -1,64 +1,46 @@
-# PasteGuard 0.2.1 — free experimental preview
+# PasteGuard 0.3.0 — experimental local AI preview
 
+**This is a test build, not complete leak protection.** Rules detect selected API keys and labeled credentials. Optional local AI adds context-based names, locations and selected private identifiers after a 300 ms typing pause. Optional guessing handles some unlabeled mixed-character passwords. All switches start OFF.
 
+AI can miss secrets or redact harmless text. It does not protect every app, understand all confidential information, or guarantee under 10 ms. Text already typed can reach a destination before detection. No company service or payments are available.
 
+## Download and install
 
-Local pattern redaction with an ON/OFF switch for selected text inputs on ChatGPT, Claude, and Gemini. Starts OFF. Turning OFF leaves new text unchanged and does not restore removed text.
+[Download the current source ZIP](https://github.com/quietorbit-labs/pasteguard-preview/archive/refs/heads/main.zip). Extract it. Open chrome://extensions in Chrome, enable Developer mode, choose Load unpacked and select the **extension** folder. Disable your old PasteGuard install to avoid two copies changing text. Reload supported AI tabs after updating.
 
+The extension runs on ChatGPT, Claude and Gemini in Chrome. **Live editor compatibility is still unverified.** Plain text fields are the intended test surface. Do not use real secrets until you have validated behavior; no detection result guarantees safety.
 
+## Start local AI
 
+Requires Python 3.11 or later on the computer. From the extracted project folder, run:
 
-**[Download the free ZIP](https://api.github.com/repos/quietorbit-labs/pasteguard-preview/zipball/v0.2.1)** · [Release details](https://github.com/quietorbit-labs/pasteguard-preview/releases/tag/v0.2.1)
+```powershell
+python -m pip install -r local-ai/requirements.txt
+python local-ai/setup.py
+python local-ai/server.py
+```
 
+Setup downloads about 29 MB of model weights and tokenizer files from Hugging Face. Pip downloads dependencies from PyPI. Then inference works without cloud AI. Leave the server running; Ctrl+C stops it. It listens only on 127.0.0.1:4322. No Windows keyboard hooks or startup service are installed. The local test page is http://127.0.0.1:4322/.
 
+Open the extension popup. Turn ON **Auto-redaction on AI websites**, then **Local AI context detection**. Optional **Detect likely unlabeled secrets** can flag harmless text. If the AI program is stopped, AI reports unavailable and the rules remain active. Manual checker in the popup uses rules only.
 
+The extension now requests permission for http://127.0.0.1/* so its worker can reach the local program. The worker's code only contacts fixed endpoint http://127.0.0.1:4322/scan; it does not accept arbitrary destination URLs. Text is sent from the extension to that local process only when both auto-redaction and local AI are ON. It is processed in memory; no snippet logs or telemetry. This localhost permission is additional to the older pattern-only release.
 
-No account or payment is required to use the extension. No paid team service is available. This is not a Chrome Web Store release.
+## What was checked
 
+- 32 detector/package checks on selected patterns and guessing mode.
+- Local AI audited on 10 fake examples; results and misses in local-ai/AUDIT.json. This is not an accuracy estimate.
+- Browser typing on the local test page: name/location redaction ON, unchanged text OFF, mixed credentials/email with combined detection.
+- Basic local API checks: size limits, foreign-origin and missing-header rejection.
+- Extension integration is tested using a synthetic browser fixture with mocked Chrome messaging. A real installed Chrome/AI-editor test is still required before making protection claims.
 
+The AI supports at most 2,000 characters / 512 tokens per scan. Oversize input reports an error instead of silently partially scanning. AI stale results are discarded after edits, focus changes or turning OFF. Turning OFF does not restore text already redacted.
 
+## Interest and feedback
 
-## Planned team offer and optional sharing
+[Report a fake-data test result](https://github.com/quietorbit-labs/pasteguard-preview/issues/new?template=free-preview-feedback.yml). [Public team-interest form](https://github.com/quietorbit-labs/pasteguard-preview/issues/new?template=team-waitlist.yml). Proposed $500/month team features are not implemented. Interest is not a purchase. Do not include private information in public GitHub issues. Sharing is voluntary.
 
+## Model
 
-[Join the public team waitlist](https://github.com/quietorbit-labs/pasteguard-preview/issues/new?template=team-waitlist.yml) · [Copy a teammate invite](TEAM-INTEREST.md#share-voluntarily-with-a-teammate)
+Model and card: https://huggingface.co/onnx-community/bert-small-pii-detection-ONNX (Apache 2.0 according to the card). Revision: 6cb4e77c2b2c7f81e731b88cffa9b7a6fc675a4c. Setup verifies the ONNX weight hash. No remote model Python code is executed. The AI model can miss unlabeled passwords and API keys; rules remain important.
 
-
-The proposed team price is $500/month. Shared rules, accounts, and team controls are not implemented. Payments are off. Joining records interest, not a purchase. GitHub sign-in is required for the public form; do not include work email, company identity, or private data. Sharing is voluntary and does not unlock capacity.
-
-
-## Install
-
-
-
-
-1. Download and extract the ZIP.
-2. Open chrome://extensions in Chrome. Enable Developer mode.
-3. Choose Load unpacked and select the **extension** folder inside the extracted project, containing manifest.json.
-4. Reload a supported AI tab. Open the PasteGuard popup and switch ON.
-5. Test using fake examples such as demo@example.com and password=FAKE_SECRET_123. Switch OFF and confirm new input stays unchanged. Follow your company installation policy.
-
-
-
-
-## Verification and limits
-
-
-
-
-All eight public extension files match the tested source apart from blank lines and line endings. The downloaded release passed all 25 scanner/package checks. Run node tests/detector.cjs from the extracted project to repeat them. Previous browser testing used 12 interactions and 6 synthetic event cases with mock Chrome storage.
-
-
-
-
-**Installed Chrome and live ChatGPT/Claude/Gemini editor compatibility remain unverified.** This checks selected credential and personal-information patterns, can miss secrets or flag harmless text, and can flatten rich-text formatting. It does not protect every app or all confidential code. A destination may read text before a pattern is recognized. No guaranteed response time or complete leak prevention.
-
-
-
-
-## Voluntary feedback
-
-
-
-
-Use the repository Issues tab to report installation success, repeat use, false alarms, or editor failures. The feedback form is optional. Issues are public: fabricated examples only, never real credentials, private code, customer prompts, or personal information.
