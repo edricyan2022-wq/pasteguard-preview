@@ -9,6 +9,7 @@
     ['Stripe secret key', 'high', /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{16,255}\b/g],
     ['Slack token', 'high', /\bxox[baprs]-[A-Za-z0-9-]{16,255}\b/g],
     ['Bearer credential', 'review', /\bBearer\s+([A-Za-z0-9._~+\/-]{12,}={0,2})/gi, 1],
+    ['Password or secret in a sentence', 'review', /\b(?:password|passwd|pwd|api[ _-]?key|api[ _-]?secret|client[ _-]?secret|access[ _-]?token|secret[ _-]?key)\s+(?:is|equals)\s+["']?([^\s"'`,;<>]{6,})/gi, 1],
     ['Possible password or secret', 'review', /\b(?:password|passwd|pwd|api[_-]?key|api[_-]?secret|client[_-]?secret|access[_-]?token|secret[_-]?key|aws[_-]?secret[_-]?access[_-]?key)["']?\s*[:=]\s*["']?([^\s"'`,;<>]{6,})/gi, 1],
     ['Database URL credentials', 'high', /\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis):\/\/([^\s/@]+:[^\s/@]+)@/gi, 1],
     ['US phone number', 'review', /(?<!\w)(?:\+1[ .-]?)?(?:\([2-9]\d{2}\)[ .-]?|[2-9]\d{2}[ .-])[2-9]\d{2}[ .-]\d{4}(?!\d)/g],
@@ -16,10 +17,22 @@
     ['Payment card-like number', 'review', /(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)/g, 0, value=>{const digits=value.replace(/\D/g,'');if(digits.length<13||digits.length>19||/^(\d)\1+$/.test(digits))return false;let sum=0;for(let i=digits.length-1,j=0;i>=0;i--,j++){let n=Number(digits[i]);if(j%2){n*=2;if(n>9)n-=9;}sum+=n;}return sum%10===0;}]
   ];
   const placeholders = /^(?:\[REDACTED\]|<[^>]+>|\$\{[^}]+\}|\*+|your[_-].*|changeme|example|placeholder|undefined|null)$/i;
-  function scan(text) {
+  function scan(text, {detectLikelySecrets=false}={}) {
     if(typeof text !== 'string') throw new TypeError('Text is required.');
     if(text.length > LIMIT) throw new RangeError('Text is too large. Check a smaller section (250,000 characters maximum).');
     const candidates=[];
+    // Opt-in heuristic, not proof that a string is a secret. Never guess
+    // inside URLs, paths, assignments or placeholders; exact rules handle those.
+    if(detectLikelySecrets){
+      for(const match of text.matchAll(/[^\s"'`,;<>]+/g)){
+        const value=match[0];
+        if(value.length<10 || value.length>4096 || placeholders.test(value) || /[:=\/\\@]/.test(value))continue;
+        const classes=[/[a-z]/,/[A-Z]/,/\d/,/[^A-Za-z0-9]/].filter(r=>r.test(value)).length;
+        const passwordLike=classes===4 && /[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value);
+        const tokenLike=value.length>=24 && classes>=3 && new Set(value).size>=12;
+        if(passwordLike||tokenLike)candidates.push({type:'Possible unlabeled secret',severity:'review',start:match.index,end:match.index+value.length});
+      }
+    }
     // Walk from each @ instead of retrying a greedy local-part expression at
     // every word boundary. Long dotted strings otherwise cause quadratic work.
     const localChar=/[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]/i;
